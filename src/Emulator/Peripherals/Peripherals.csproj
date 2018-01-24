@@ -219,6 +219,9 @@
     <Compile Include="Peripherals\Sensors\MAX6682MUA.cs" />
     <Compile Include="Peripherals\Sensors\SI70xx.cs" />
     <Compile Include="Peripherals\CPU\TranslationCPU.cs" />
+    <Compile Include="Peripherals\CPU\IExecutionValidator.cs" />
+    <Compile Include="Peripherals\CPU\PassthroughValidator.cs" />
+    <Compile Include="Peripherals\CPU\ExternalValidator.cs" />
     <Compile Include="Peripherals\CPU\Disassembler\IDisassembler.cs" />
     <Compile Include="Peripherals\CPU\Disassembler\IDisassemblable.cs" />
     <Compile Include="Peripherals\CPU\Disassembler\DisassemblerManager.cs" />

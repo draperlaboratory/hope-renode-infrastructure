@@ -49,6 +49,16 @@ namespace Antmicro.Renode.Peripherals.CPU
             Endianness = endianness;
             PerformanceInMips = 100;
             currentCountThreshold = 5000;
+
+#region Validator
+	    stopWatch = new Stopwatch();
+	    stopWatch.Start();
+	    blockCount = 0;
+	    commitPending = false;
+	    cbGetRegister = new CallbackGetRegister(fnGetRegister);
+	    cbReadMemory = new CallbackReadMemory(fnReadMemory);
+#endregion
+
             this.cpuType = cpuType;
             ClockSource = new BaseClockSource();
             ClockSource.NumberOfEntriesChanged += (oldValue, newValue) =>
@@ -501,6 +511,7 @@ namespace Antmicro.Renode.Peripherals.CPU
 
             lock(pauseLock)
             {
+		stopWatch.Stop();
                 PauseEvent.Set();
                 TlibSetPaused();
 
@@ -533,6 +544,7 @@ namespace Antmicro.Renode.Peripherals.CPU
                     return;
                 }
                 started = true;
+		stopWatch.Start();
                 this.NoisyLog("Resuming.");
                 cpuThread = new Thread(CpuLoop)
                 {
@@ -1010,6 +1022,36 @@ namespace Antmicro.Renode.Peripherals.CPU
             HandleStepping();
             skipNextStepping = false;
 
+#region Validator
+	    blockCount++;
+
+	    if (Validator != null)
+	    {
+		if (commitPending)
+		{
+		    Validator.Commit();
+		}
+
+		if (!Validator.Validate(address, machine.SystemBus.ReadDoubleWord(address)))
+//		if (!Validator.Validate(address, 0))
+		{
+		    ReportAbort("Policy violation");
+//		this.Log(LogLevel.Info, "Policy violation at 0x{0:X}", address);
+		}
+		commitPending = true;
+	    }
+
+//            this.Log(LogLevel.Info, "address 0x{0:X}, size 0x{1:X}.", address, size);
+//	    this.Log(LogLevel.Info, "sw {0}", stopWatch.ElapsedMilliseconds);
+	    if (stopWatch.ElapsedMilliseconds > 1000)
+	    {
+		this.Log(LogLevel.Info, "block count {0} ms = {1}.", blockCount, stopWatch.ElapsedMilliseconds);
+		blockCount = 0;
+		stopWatch.Reset();
+		stopWatch.Start();
+	    }
+#endregion
+
             var bbInternalHook = blockBeginInternalHook;
             if(bbInternalHook != null)
             {
@@ -1282,6 +1324,8 @@ namespace Antmicro.Renode.Peripherals.CPU
                 TlibAddBreakpoint(hook.Key);
             }
             RenodeSetCountThreshold(currentCountThreshold);
+
+//	    Validator = new PassthroughValidator();
         }
 
         private void InvokeHalted(HaltArguments arguments)
@@ -1316,6 +1360,8 @@ namespace Antmicro.Renode.Peripherals.CPU
         [Export]
         private uint IsBlockBeginEventEnabled()
         {
+	    if (Validator != null)
+		return 1u;
             return (blockBeginInternalHook != null || blockBeginUserHook != null || executionMode == ExecutionMode.SingleStep || isAnyInactiveHook) ? 1u : 0u;
         }
 
@@ -1454,12 +1500,54 @@ namespace Antmicro.Renode.Peripherals.CPU
 
         #endregion
 
+	private UInt32 fnGetRegister(UInt32 regno)
+	{
+	    return GetRegisterUnsafe((int)regno);
+	}
+
+	private UInt32 fnReadMemory(UInt32 addr)
+	{
+	    return ReadDoubleWordFromBus(addr);
+	}
+
         protected readonly BaseClockSource ClockSource;
 
         private bool[] interruptState;
         private int currentCountThreshold;
         private Action<uint, uint> blockBeginInternalHook;
         private Action<uint, uint> blockBeginUserHook;
+
+#region Validator
+	private Stopwatch stopWatch;
+	private int blockCount;
+	private bool commitPending;
+	private delegate UInt32 CallbackGetRegister(UInt32 regno);
+	private delegate UInt32 CallbackReadMemory(UInt32 addr);
+	private CallbackGetRegister cbGetRegister;
+	private CallbackReadMemory cbReadMemory;
+
+        public void SetExternalValidator(string path)
+	{
+	    Validator = new ExternalValidator(path);
+	} 
+
+	public IExecutionValidator Validator
+	{
+	    get { return validator; }
+	    set
+	    {
+		/*
+		 *  Validators can only function correctly if they are called for every
+		 *  instruction.  In order to do that, we have to set the block size to 1,
+		 *  so that tlib will not execute arbitrary sized basic blocks atomically
+		 *  from the perspective of Renode.
+		*/
+		MaximumBlockSize = 1;
+		validator = value;
+	    }
+	}
+	private IExecutionValidator validator;
+#endregion
 
         private List<SegmentMapping> currentMappings;
 
