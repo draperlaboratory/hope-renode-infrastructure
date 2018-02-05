@@ -55,8 +55,8 @@ namespace Antmicro.Renode.Peripherals.CPU
 	    stopWatch.Start();
 	    blockCount = 0;
 	    commitPending = false;
-	    cbGetRegister = new CallbackGetRegister(fnGetRegister);
-	    cbReadMemory = new CallbackReadMemory(fnReadMemory);
+	    cbGetRegister = new RegisterReader(fnGetRegister);
+	    cbReadMemory = new MemoryReader(fnReadMemory);
 #endregion
 
             this.cpuType = cpuType;
@@ -1500,14 +1500,14 @@ namespace Antmicro.Renode.Peripherals.CPU
 
         #endregion
 
-	private UInt32 fnGetRegister(UInt32 regno)
+	private IntPtr fnGetRegister(int regno)
 	{
-	    return GetRegisterUnsafe((int)regno);
+	    return (IntPtr)GetRegisterUnsafe(regno);
 	}
 
-	private UInt32 fnReadMemory(UInt32 addr)
+	private UInt32 fnReadMemory(IntPtr addr)
 	{
-	    return ReadDoubleWordFromBus(addr);
+	    return ReadDoubleWordFromBus((UInt32)addr);
 	}
 
         protected readonly BaseClockSource ClockSource;
@@ -1521,14 +1521,13 @@ namespace Antmicro.Renode.Peripherals.CPU
 	private Stopwatch stopWatch;
 	private int blockCount;
 	private bool commitPending;
-	private delegate UInt32 CallbackGetRegister(UInt32 regno);
-	private delegate UInt32 CallbackReadMemory(UInt32 addr);
-	private CallbackGetRegister cbGetRegister;
-	private CallbackReadMemory cbReadMemory;
+	private RegisterReader cbGetRegister;
+	private MemoryReader cbReadMemory;
 
         public void SetExternalValidator(string path)
 	{
 	    Validator = new ExternalValidator(path);
+	    Validator.SetCallbacks(cbGetRegister, cbReadMemory);
 	} 
 
 	public IExecutionValidator Validator
