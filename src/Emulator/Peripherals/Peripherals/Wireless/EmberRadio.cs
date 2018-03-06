@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 // Copyright (c) 2011-2015 Realtime Embedded
 //
 // This file is licensed under the MIT License.
@@ -121,7 +121,7 @@ namespace Antmicro.Renode.Peripherals.Wireless
                 lastFlipVal = 1 - lastFlipVal;
                 return lastFlipVal * 0xFFFFFFFF;*/
             case 0x01C:
-                return (uint)((int)((machine.ElapsedVirtualTime).TotalMilliseconds * 1000) & 0xFFFFFFFF);
+                return (uint)((int)((machine.ElapsedVirtualTime.TimeElapsed).TotalMilliseconds * 1000) & 0xFFFFFFFF);
             case 0x18:
                 return INT_MGMTFLAG;
             }

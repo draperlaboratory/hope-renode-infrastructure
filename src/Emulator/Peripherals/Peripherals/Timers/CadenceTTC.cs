@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 // Copyright (c) 2011-2015 Realtime Embedded
 //
 // This file is licensed under the MIT License.
@@ -29,7 +29,7 @@ namespace Antmicro.Renode.Peripherals.Timers
             {
                 // this line must stay to avoid access to modified closure
                 var j = i;
-                timers[i].CoreTimer = new LimitTimer(machine, TimerFrequency, limit: InitialLimit, direction : Direction.Ascending);
+                timers[i].CoreTimer = new LimitTimer(machine.ClockSource, TimerFrequency, limit: InitialLimit, direction : Direction.Ascending);
                 timers[i].CoreTimer.LimitReached += () => OnTimerAlarm(j);
             }
 

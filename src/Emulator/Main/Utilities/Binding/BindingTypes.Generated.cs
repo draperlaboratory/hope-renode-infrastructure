@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 // Copyright (c) 2011-2015 Realtime Embedded
 //
 // This file is licensed under the MIT License.
@@ -3730,7 +3730,7 @@ namespace Antmicro.Renode.Utilities.Binding
   public delegate IntPtr FuncIntPtrIntPtrIntPtrIntPtr(IntPtr param0, IntPtr param1, IntPtr param2);
   [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
   public delegate void AttachFuncIntPtrIntPtrIntPtrIntPtr(FuncIntPtrIntPtrIntPtrIntPtr param);
-
+  [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
   public delegate void AttachAction(System.Action param);
   [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
   public delegate UInt64 FuncUInt64();

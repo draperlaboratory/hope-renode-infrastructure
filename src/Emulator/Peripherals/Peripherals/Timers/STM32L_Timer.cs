@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 //
 // This file is licensed under the MIT License.
 // Full license text is available in 'licenses/MIT.txt'.
@@ -15,7 +15,7 @@ namespace Antmicro.Renode.Peripherals.Timers
     [AllowedTranslations(AllowedTranslation.WordToDoubleWord)]
     public class STM32L_Timer : LimitTimer, IDoubleWordPeripheral
     {
-        public STM32L_Timer(Machine machine) : base(machine, 0xF42400, direction: Direction.Ascending) //freq guesed from driver
+        public STM32L_Timer(Machine machine) : base(machine.ClockSource, 0xF42400, direction: Direction.Ascending) //freq guesed from driver
         {
             IRQ = new GPIO();
             SetupRegisters();

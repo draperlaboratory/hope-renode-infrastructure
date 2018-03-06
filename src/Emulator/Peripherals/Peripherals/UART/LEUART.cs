@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 // Copyright (c) 2011-2015 Realtime Embedded
 //
 // This file is licensed under the MIT License.
@@ -80,7 +80,14 @@ namespace Antmicro.Renode.Peripherals.UART
 
         public void WriteChar(byte data)
         {
-            machine.ReportForeignEvent(data, WriteCharInner);
+            this.NoisyLog("Char 0x{0:X} written.", data);
+            IRQ.Set(true);
+            interruptFlag |= InterruptFlag.RxDataAvailable;
+            lock(queueLock)
+            {
+                waitingChars.Enqueue(data);
+                currentStatus |= Status.RxDataAvailable;
+            }
         }
 
         [field: Transient]
@@ -118,18 +125,6 @@ namespace Antmicro.Renode.Peripherals.UART
         {
             IRQ.Set(false);
             interruptFlag &= ~InterruptFlag.RxDataAvailable;
-        }
-
-        private void WriteCharInner(byte data)
-        {
-            this.NoisyLog("Char 0x{0:X} written.", data);
-            IRQ.Set(true);
-            interruptFlag |= InterruptFlag.RxDataAvailable;
-            lock(queueLock)
-            {
-                waitingChars.Enqueue(data);
-                currentStatus |= Status.RxDataAvailable;
-            }
         }
 
         private uint controlRegister;

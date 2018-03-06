@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 // Copyright (c) 2011-2015 Realtime Embedded
 //
 // This file is licensed under the MIT License.
@@ -22,7 +22,11 @@ namespace Antmicro.Renode.Peripherals.UART
 
         public void WriteChar(byte value)
         {
-            Machine.ReportForeignEvent(value, WriteCharInner);
+            lock(queue)
+            {
+                queue.Enqueue(value);
+                CharWritten();
+            }
         }
 
         public virtual void Reset()
@@ -76,15 +80,6 @@ namespace Antmicro.Renode.Peripherals.UART
                 {
                     return queue.Count;
                 }
-            }
-        }
-
-        private void WriteCharInner(byte value)
-        {
-            lock(queue)
-            {
-                queue.Enqueue(value);
-                CharWritten();
             }
         }
 

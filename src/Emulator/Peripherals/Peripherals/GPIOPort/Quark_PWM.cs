@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 //
 // This file is licensed under the MIT License.
 // Full license text is available in 'licenses/MIT.txt'.
@@ -30,7 +30,7 @@ namespace Antmicro.Renode.Peripherals.X86
             runningMode = new RunningMode[NumberOfInternalTimers];
             for(int i = 0; i < timers.Length; i++)
             {
-                timers[i] = new LimitTimer(machine, 32000000, eventEnabled: true);
+                timers[i] = new LimitTimer(machine.ClockSource, 32000000, eventEnabled: true);
                 var j = i;
                 timers[i].LimitReached += () => HandleLimitReached(j);
             }

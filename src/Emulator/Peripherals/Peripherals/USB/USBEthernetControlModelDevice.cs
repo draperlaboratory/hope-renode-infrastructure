@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 // Copyright (c) 2011-2015 Realtime Embedded
 //
 // This file is licensed under the MIT License.
@@ -28,7 +28,6 @@ namespace Antmicro.Renode.Peripherals.USB
 
         public USBEthernetControlModelDevice()
         {
-            Link = new NetworkLink(this);
         }
 
         public void Reset()
@@ -168,7 +167,9 @@ namespace Antmicro.Renode.Peripherals.USB
     #endregion
 
     #region INetworkInterface implementation
-        public NetworkLink Link { get; private set; }
+#pragma warning disable 0067
+        public event Action<EthernetFrame> FrameReady;
+#pragma warning restore 0067
         public MACAddress MAC { get; set; }
 
         public void ReceiveFrame(EthernetFrame frame)//when data is send to us

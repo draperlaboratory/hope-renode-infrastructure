@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 // Copyright (c) 2011-2015 Realtime Embedded
 //
 // This file is licensed under the MIT License.
@@ -13,7 +13,7 @@ namespace Antmicro.Renode.Utilities.Collections
     {
         public FastReadConcurrentCollection()
         {
-            Items = new T[0];
+            Clear();
         }
 
         public void Add(T item)
@@ -33,6 +33,14 @@ namespace Antmicro.Renode.Utilities.Collections
                 var copy = new List<T>(Items);
                 copy.Remove(item);
                 Items = copy.ToArray();
+            }
+        }
+
+        public void Clear()
+        {
+            lock(locker)
+            {
+                Items = new T[0];
             }
         }
 

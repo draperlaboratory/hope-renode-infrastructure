@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 //
 // This file is licensed under the MIT License.
 // Full license text is available in 'licenses/MIT.txt'.
@@ -33,6 +33,9 @@ namespace Antmicro.Renode.Utilities
             {
                 cpu.Halted += OnHalted;
                 cpu.ExecutionMode = ExecutionMode.SingleStep;
+
+                var dcpu = (dynamic)cpu;
+                dcpu.MaximumBlockSize = 1;
             };
             terminal.ConnectionClosed += delegate
             {

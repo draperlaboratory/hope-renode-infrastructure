@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 //
 // This file is licensed under the MIT License.
 // Full license text is available in 'licenses/MIT.txt'.
@@ -29,7 +29,6 @@ namespace Antmicro.Renode.HostInterfaces.Network
     {
         public OsXTapInterface(string interfaceNameOrPath)
         {
-            Link = new NetworkLink(this);
             originalInterfaceNameOrPath = interfaceNameOrPath;
             Init();
         }
@@ -96,7 +95,7 @@ namespace Antmicro.Renode.HostInterfaces.Network
             }
         }
 
-        public NetworkLink Link { get; private set; }
+        public event Action<EthernetFrame> FrameReady;
 
         public MACAddress MAC 
         { 
@@ -129,7 +128,7 @@ namespace Antmicro.Renode.HostInterfaces.Network
                     if(await deviceFile.ReadAsync(buffer, 0, buffer.Length, cts.Token) > 0)
                     {
                         var frame = EthernetFrame.CreateEthernetFrameWithCRC(buffer);
-                        Link.TransmitFrameFromInterface(frame);
+                        FrameReady?.Invoke(frame);
                         this.NoisyLog("Frame of length {0} received from host.", frame.Bytes.Length);
                     }
                 }

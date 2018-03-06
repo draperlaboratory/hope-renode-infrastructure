@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 // Copyright (c) 2011-2015 Realtime Embedded
 //
 // This file is licensed under the MIT License.
@@ -211,7 +211,7 @@ namespace Antmicro.Renode.Peripherals.Timers
 
         private sealed class SunxiTimerUnit : LimitTimer
         {
-            public SunxiTimerUnit(Machine machine, SunxiTimer parent) : base(machine, 24000000, direction: Antmicro.Renode.Time.Direction.Descending, enabled: false, eventEnabled: true)
+            public SunxiTimerUnit(Machine machine, SunxiTimer parent) : base(machine.ClockSource, 24000000, direction: Antmicro.Renode.Time.Direction.Descending, enabled: false, eventEnabled: true)
             {
                 timerGroup = parent;
                 controlRegister = new DoubleWordRegister(this, 0x04);

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 // Copyright (c) 2011-2015 Realtime Embedded
 //
 // This file is licensed under the MIT License.
@@ -62,12 +62,17 @@ namespace Antmicro.Renode.Peripherals.Input
 
         public void Press(KeyScanCode scanCode)
         {
-            machine.ReportForeignEvent(scanCode, PressInner);
+            var key = PS2ScanCodeTranslator.Instance.GetCode(scanCode);
+            data.Enqueue((byte)(key & 0x7f));
+            NotifyParent();
         }
 
         public void Release(KeyScanCode scanCode)
         {
-            machine.ReportForeignEvent(scanCode, ReleaseInner);
+            var key = PS2ScanCodeTranslator.Instance.GetCode(scanCode);
+            data.Enqueue((byte)Command.Release);
+            data.Enqueue((byte)(key & 0x7f));
+            NotifyParent();
         }
 
         public void Reset()
@@ -76,22 +81,6 @@ namespace Antmicro.Renode.Peripherals.Input
         }
 
         public IPS2Controller Controller { get; set; }
-
-        private void PressInner(KeyScanCode scanCode)
-        {
-            var key = PS2ScanCodeTranslator.Instance.GetCode(scanCode);
-            data.Enqueue((byte)(key & 0x7f));
-            NotifyParent();
-        }
-
-        private void ReleaseInner(KeyScanCode scanCode)
-        {
-            var key = PS2ScanCodeTranslator.Instance.GetCode(scanCode);
-            data.Enqueue((byte)Command.Release);
-            data.Enqueue((byte)(key & 0x7f));
-            NotifyParent();
-
-        }
 
         private void SendAck()
         {

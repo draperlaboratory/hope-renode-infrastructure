@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 // Copyright (c) 2011-2015 Realtime Embedded
 //
 // This file is licensed under the MIT License.
@@ -24,6 +24,7 @@ using Antmicro.Renode.UserInterface.Commands;
 using Antmicro.Renode.UserInterface.Exceptions;
 using Antmicro.Renode.Core.Structure;
 using System.Runtime.InteropServices;
+using System.Globalization;
 
 namespace Antmicro.Renode.UserInterface
 {
@@ -42,7 +43,7 @@ namespace Antmicro.Renode.UserInterface
 
         public NumberModes CurrentNumberFormat{ get; set; }
 
-        private void RunCommand(ICommandInteraction writer, Command command, IList<Token> parameters)
+        private bool RunCommand(ICommandInteraction writer, Command command, IList<Token> parameters)
         {
             var commandType = command.GetType();
             var runnables = commandType.GetMethods().Where(x => x.GetCustomAttributes(typeof(RunnableAttribute), true).Any());
@@ -182,16 +183,17 @@ namespace Antmicro.Renode.UserInterface
                     }
                     throw;
                 }
-                return;
+                return true;
             }
             if(parameters.Any(x => x is VariableToken))
             {
-                RunCommand(writer, command, ExpandVariables(parameters));
-                return;
+                return RunCommand(writer, command, ExpandVariables(parameters));
             }
             writer.WriteError(String.Format("Bad parameters for command {0} {1}", command.Name, string.Join(" ", parameters.Select(x => x.OriginalValue))));
             command.PrintHelp(writer);
             writer.WriteLine();
+
+            return false;
         }
 
         //TODO: unused, but maybe should be used.
@@ -274,10 +276,9 @@ namespace Antmicro.Renode.UserInterface
                 endl = "\r\n"; //Cannot be Environment.NewLine, we need \r explicitly.
             }
             var enumerable = result as IEnumerable;
-            if(result is int || result is long || result is uint || result is ushort || result is byte)
+            if(result is int || result is long || result is uint || result is ushort || result is byte || result is ulong || result is short)
             {
-                result.GetType();
-                writer.Write(string.Format(GetNumberFormat(CurrentNumberFormat, 2 * Marshal.SizeOf(result.GetType())) + endl, result));
+                writer.Write(string.Format(CultureInfo.InvariantCulture, GetNumberFormat(CurrentNumberFormat, 2 * Marshal.SizeOf(result.GetType())) + endl, result));
             }
             else if(result is string[,])
             {
@@ -296,7 +297,7 @@ namespace Antmicro.Renode.UserInterface
                 foreach(var entry in dict)
                 {
                     var format = GetResultFormat(entry.Key, 0, length) + " : " + GetResultFormat(entry.Value, 1);
-                    string entryResult = string.Format(format, entry.Key, entry.Value); //DO NOT INLINE WITH WriteLine. May result with CS1973, but may even fail in runtime.
+                    string entryResult = string.Format(CultureInfo.InvariantCulture, format, entry.Key, entry.Value); //DO NOT INLINE WITH WriteLine. May result with CS1973, but may even fail in runtime.
                     writer.WriteLine(entryResult);
                 }
                 return;
@@ -313,7 +314,7 @@ namespace Antmicro.Renode.UserInterface
             }
             else
             {
-                writer.Write(result + endl);
+                writer.Write(string.Format(CultureInfo.InvariantCulture, "{0}" + endl, result));
             }
         }
 
@@ -526,7 +527,7 @@ namespace Antmicro.Renode.UserInterface
             }
             if(info.Methods != null && info.Methods.Any(x => lookup == null || x.Name == lookup))
             {
-                writer.WriteLine("\nFollowing methods are available:");
+                writer.WriteLine("\nThe following methods are available:");
                 var methodsOutput = new StringBuilder();
 
                 foreach(var method in info.Methods.Where(x=> lookup == null || x.Name==lookup))
@@ -590,7 +591,7 @@ namespace Antmicro.Renode.UserInterface
          
             if(info.Properties != null && info.Properties.Any(x => lookup == null || x.Name == lookup))
             {
-                writer.WriteLine("\nFollowing properties are available:");
+                writer.WriteLine("\nThe following properties are available:");
 
                 foreach(var property in info.Properties.Where(x=> lookup==null || x.Name==lookup))
                 {
@@ -622,7 +623,7 @@ namespace Antmicro.Renode.UserInterface
 
             if(info.Indexers != null && info.Indexers.Any(x => lookup == null || x.Name == lookup))
             {
-                writer.WriteLine("\nFollowing indexers are available:");
+                writer.WriteLine("\nThe following indexers are available:");
                 foreach(var indexer in info.Indexers.Where(x=> lookup==null || x.Name==lookup))
                 {
                     var parameterFormat = new StringBuilder();
@@ -689,7 +690,7 @@ namespace Antmicro.Renode.UserInterface
 
             if(info.Fields != null && info.Fields.Any(x => lookup == null || x.Name == lookup))
             {
-                writer.WriteLine("\nFollowing fields are available:");
+                writer.WriteLine("\nThe following fields are available:");
 
                 foreach(var field in info.Fields.Where(x=> lookup==null || x.Name==lookup))
                 {

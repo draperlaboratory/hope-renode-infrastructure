@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 // Copyright (c) 2011-2015 Realtime Embedded
 //
 // This file is licensed under the MIT License.
@@ -17,7 +17,7 @@ namespace Antmicro.Renode.Peripherals.Timers
 {
     public class STM32_Timer : LimitTimer, IDoubleWordPeripheral
     {
-        public STM32_Timer(Machine machine) : base(machine, 10000000, direction: Direction.Ascending, limit: 0x100000, enabled: false) {
+        public STM32_Timer(Machine machine) : base(machine.ClockSource, 10000000, direction: Direction.Ascending, limit: 0x100000, enabled: false) {
             AutoUpdate = true;
             IRQ = new GPIO();
         }

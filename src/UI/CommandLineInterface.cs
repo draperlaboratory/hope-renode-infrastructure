@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 // Copyright (c) 2011-2015 Realtime Embedded
 //
 // This file is licensed under the MIT License.
@@ -26,6 +26,7 @@ namespace Antmicro.Renode.UI
         public static void Run(Options options, Action<ObjectCreator.Context> beforeRun = null)
         {
             AppDomain.CurrentDomain.UnhandledException += (sender, e) => CrashHandler.HandleCrash((Exception)e.ExceptionObject);
+            Emulator.ShowAnalyzers = !options.HideAnalyzers;
             XwtProvider xwt = null;
             try
             {

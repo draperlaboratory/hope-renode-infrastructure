@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 // Copyright (c) 2011-2015 Realtime Embedded
 //
 // This file is licensed under the MIT License.
@@ -146,6 +146,8 @@ namespace Antmicro.Renode.Utilities
             typeof(IClockSource),
             typeof(Range),
             typeof(TimeSpan),
+            typeof(TimeInterval),
+            typeof(TimeStamp),
             typeof(TimerResult)
         };
         private static bool IsTypeConvertible(Type type)

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 // Copyright (c) 2011-2015 Realtime Embedded
 //
 // This file is licensed under the MIT License.
@@ -78,7 +78,7 @@ namespace Antmicro.Renode.Peripherals.Miscellaneous
                 return 0;
             case CTL.Mhz24:
                 //TODO: verify
-                uint v = unchecked((uint)((machine.ElapsedVirtualTime).TotalSeconds*24000000));
+                uint v = unchecked((uint)((machine.ElapsedVirtualTime.TimeElapsed).TotalSeconds*24000000));
                 return v;
             case CTL.Misc:
                 return 0;

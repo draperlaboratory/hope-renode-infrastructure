@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 //
 // This file is licensed under the MIT License.
 // Full license text is available in 'licenses/MIT.txt'.
@@ -23,7 +23,7 @@ namespace Antmicro.Renode.Peripherals.IRQControllers
         public LAPIC(Machine machine)
         {
             // frequency guessed from driver and zephyr code
-            localTimer = new LimitTimer(machine, 32000000, direction: Direction.Descending, workMode: WorkMode.OneShot, eventEnabled: true, divider: 2);
+            localTimer = new LimitTimer(machine.ClockSource, 32000000, direction: Direction.Descending, workMode: WorkMode.OneShot, eventEnabled: true, divider: 2);
             localTimer.LimitReached += () =>
             {
                 if(localTimerMasked.Value || !lapicEnabled.Value)
@@ -285,6 +285,8 @@ namespace Antmicro.Renode.Peripherals.IRQControllers
                 FindPendingInterrupt();
             }
         }
+
+        public uint InternalTimerVector { get => localTimerVector.Value; }
 
         private int FindPendingInterrupt()
         {

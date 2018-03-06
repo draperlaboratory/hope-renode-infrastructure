@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 // Copyright (c) 2011-2015 Realtime Embedded
 //
 // This file is licensed under the MIT License.
@@ -17,15 +17,19 @@ using System.Threading;
 using System.Reflection;
 using Antmicro.Renode.Logging;
 using Antmicro.Renode.UserInterface;
+using Antmicro.Renode.Time;
 
 namespace Antmicro.Renode.Core
 {
     public sealed class EmulationManager
     {
+        public static ITimeDomain ExternalWorld { get; private set; }
+
         public static EmulationManager Instance { get; private set; }
 
         static EmulationManager()
         {
+            ExternalWorld = new ExternalWordlTimeDomain();
             RebuildInstance();
         }
 
@@ -185,6 +189,16 @@ namespace Antmicro.Renode.Core
         private Stopwatch stopwatch;
         private readonly Serializer serializer;
         private Emulation currentEmulation;
+
+        /// <summary>
+        /// Represents external world time domain.
+        /// </summary>
+        /// <remarks>
+        /// Is used as a source of all external, asynchronous input events (e.g., user input on uart analyzer).
+        /// </remarks>
+        private class ExternalWordlTimeDomain : ITimeDomain
+        {
+        }
     }
 }
 

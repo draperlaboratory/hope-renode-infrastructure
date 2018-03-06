@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 // Copyright (c) 2011-2015 Realtime Embedded
 //
 // This file is licensed under the MIT License.
@@ -32,7 +32,16 @@ namespace Antmicro.Renode.Peripherals.UART
     
         public void WriteChar(byte value)
         {
-            machine.ReportForeignEvent(value, WriteCharInner);
+            lock(buffer)
+            {
+                buffer.Enqueue(value);
+                if((InterruptEnable & 0x01) != 0)
+                {
+                    InterruptStatus |= 0x01;
+                    IRQ.Set();
+                    this.Log(LogLevel.Noisy, "GPIO IRQ set to {0} due to new character in a buffer", value);
+                }
+            }
         }
     
         public void WriteDoubleWord(long offset, uint value)
@@ -150,20 +159,6 @@ namespace Antmicro.Renode.Peripherals.UART
         public void Reset()
         {
             buffer.Clear();
-        }
-
-        private void WriteCharInner(byte value)
-        {
-            lock(buffer)
-            {
-                buffer.Enqueue(value);
-                if((InterruptEnable & 0x01) != 0)
-                {
-                    InterruptStatus |= 0x01;
-                    IRQ.Set();
-                    this.Log(LogLevel.Noisy, "GPIO IRQ set to {0} due to new character in a buffer", value);
-                }
-            }
         }
 
     	private readonly Queue<byte> buffer;

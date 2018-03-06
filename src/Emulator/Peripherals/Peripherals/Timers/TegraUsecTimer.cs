@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 // Copyright (c) 2011-2015 Realtime Embedded
 //
 // This file is licensed under the MIT License.
@@ -15,7 +15,7 @@ namespace Antmicro.Renode.Peripherals.Timers
 {
     public class TegraUsecTimer : LimitTimer, IDoubleWordPeripheral, IKnownSize
     {
-        public TegraUsecTimer (Machine machine) : base(machine, 1000000, direction: Direction.Ascending, limit: uint.MaxValue, enabled: true)
+        public TegraUsecTimer (Machine machine) : base(machine.ClockSource, 1000000, direction: Direction.Ascending, limit: uint.MaxValue, enabled: true)
         {
             Reset ();
         }

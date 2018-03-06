@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 // Copyright (c) 2011-2015 Realtime Embedded
 //
 // This file is licensed under the MIT License.
@@ -96,6 +96,8 @@ namespace Antmicro.Renode
         {
             actionsOnMainThread.CompleteAdding();
         }
+
+        public static bool ShowAnalyzers { get; set; }
 
         private static readonly BlockingCollection<Action> actionsOnMainThread = new BlockingCollection<Action>();
 

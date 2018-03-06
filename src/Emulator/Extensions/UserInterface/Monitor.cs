@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 // Copyright (c) 2011-2015 Realtime Embedded
 //
 // This file is licensed under the MIT License.
@@ -67,7 +67,7 @@ namespace Antmicro.Renode.UserInterface
         }
 
         private readonly EmulationManager emulationManager;
-        private MonitorPath monitorPath = new MonitorPath();
+        private MonitorPath monitorPath = new MonitorPath(Environment.CurrentDirectory);
         public const string StartupCommandEnv = "STARTUP_COMMAND";
         private bool swallowExceptions;
         private bool breakOnException;
@@ -103,6 +103,7 @@ namespace Antmicro.Renode.UserInterface
                 macros.Clear();
                 Machine = null;
                 emulationManager.CurrentEmulation.MachineAdded += RegisterResetCommand;
+                monitorPath.Path = monitorPath.DefaultPath;
             };
 
             SetVariable(CurrentDirectoryVariable, new PathToken("@" + startingCurrentDirectory), variables);
@@ -533,11 +534,17 @@ namespace Antmicro.Renode.UserInterface
             return true;
         }
 
-        public bool TryExecuteScript(string filename)
+        public bool TryExecuteScript(string filename, ICommandInteraction writer = null)
         {
+            if(writer == null)
+            {
+                writer = Interaction;
+            }
+
             Token oldOrigin;
             if(!TryGetFilenameFromAvailablePaths(filename, out filename))
             {
+                writer.WriteError(string.Format("Could not find file '{0}'", filename));
                 return false;
             }
             variables.TryGetValue(OriginVariable, out oldOrigin);
@@ -715,7 +722,7 @@ namespace Antmicro.Renode.UserInterface
             var commandHandler = Commands.FirstOrDefault(x => x.Name == command.Value);
             if(commandHandler != null)
             {
-                RunCommand(writer, commandHandler, com.Skip(1).ToList());
+                return RunCommand(writer, commandHandler, com.Skip(1).ToList());
             }
             else if(IsNameAvailable(command.Value))
             {
@@ -731,8 +738,7 @@ namespace Antmicro.Renode.UserInterface
                 {
                     if(item.AlternativeNames != null && item.AlternativeNames.Contains(command.Value))
                     {
-                        RunCommand(writer, item, com.Skip(1).ToList());
-                        return true;
+                        return RunCommand(writer, item, com.Skip(1).ToList());
                     }
                 }
                 if(!pythonRunner.ExecuteBuiltinCommand(ExpandVariables(com).ToArray(), writer))

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 // Copyright (c) 2011-2015 Realtime Embedded
 //
 // This file is licensed under the MIT License.
@@ -15,14 +15,14 @@ namespace Antmicro.Renode.Peripherals.Timers
 {
     public class ComparingTimer : ITimer, IPeripheral
     {
-        public ComparingTimer(Machine machine, long frequency, ulong limit = ulong.MaxValue, Direction direction = Direction.Ascending,
+        public ComparingTimer(IClockSource clockSource, long frequency, ulong limit = ulong.MaxValue, Direction direction = Direction.Ascending,
             bool enabled = false, WorkMode workMode = WorkMode.OneShot, bool eventEnabled = false, ulong compare = ulong.MaxValue)
         {
             if(compare > limit)
             {
                 throw new ConstructionException(string.Format(CompareHigherThanLimitMessage, compare, limit));
             }
-            clockSource = machine.ObtainClockSource();
+            this.clockSource = clockSource;
 
             initialDirection = direction;
             initialFrequency = frequency;

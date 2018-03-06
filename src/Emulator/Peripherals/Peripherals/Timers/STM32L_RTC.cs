@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 //
 // This file is licensed under the MIT License.
 // Full license text is available in 'licenses/MIT.txt'.
@@ -15,7 +15,7 @@ namespace Antmicro.Renode.Peripherals
 {
     public class STM32L_RTC : LimitTimer, IDoubleWordPeripheral
     {
-        public STM32L_RTC(Machine machine) : base(machine, 1000, eventEnabled: true, autoUpdate: true) // this frequency is a blind guess
+        public STM32L_RTC(Machine machine) : base(machine.ClockSource, 1000, eventEnabled: true, autoUpdate: true) // this frequency is a blind guess
         {
             IRQ = new GPIO();
             LimitReached += () =>

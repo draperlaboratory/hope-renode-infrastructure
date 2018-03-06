@@ -1,16 +1,18 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 // Copyright (c) 2011-2015 Realtime Embedded
 //
 // This file is licensed under the MIT License.
 // Full license text is available in 'licenses/MIT.txt'.
 //
 using System;
+using System.Linq;
+using System.Collections.Generic;
 using Antmicro.Renode.Core;
 using Antmicro.Renode.Peripherals;
-using System.Collections.Generic;
 using Antmicro.Renode.Peripherals.CAN;
 using Antmicro.Renode.Time;
+using Antmicro.Renode.Exceptions;
 
 namespace Antmicro.Renode.Tools.Network
 {
@@ -22,7 +24,7 @@ namespace Antmicro.Renode.Tools.Network
         }
     }
 
-    public sealed class CANHub : SynchronizedExternalBase, IExternal, IHasOwnLife, IConnectable<ICAN>
+    public sealed class CANHub : IExternal, IHasOwnLife, IConnectable<ICAN>
     {
         public CANHub()
         {
@@ -35,6 +37,10 @@ namespace Antmicro.Renode.Tools.Network
         {
             lock(sync)
             {
+                if(attached.Contains(iface))
+                {
+                    throw new RecoverableException("Cannot attach to the provided CAN periperal as it is already registered in this hub.");
+                }
                 attached.Add(iface);
                 handlers.Add(iface, (id, data) => Transmit(iface, id, data));
                 iface.FrameSent += handlers[iface];
@@ -51,7 +57,7 @@ namespace Antmicro.Renode.Tools.Network
             }
         }
 
-            
+
         public void Start()
         {
             Resume();
@@ -75,24 +81,17 @@ namespace Antmicro.Renode.Tools.Network
 
         private void Transmit(ICAN sender, int id, byte[] data)
         {
-            ExecuteOnNearestSync(() =>
+            lock(sync)
             {
-                lock(sync)
+                if(!started)
                 {
-                    if(!started)
-                    {
-                        return;
-                    }
-                    foreach(var iface in attached)
-                    {
-                        if(iface == sender)
-                        {
-                            continue;
-                        }
-                        iface.OnFrameReceived(id, data);
-                    }
+                    return;
                 }
-            });
+                foreach(var iface in attached.Where(x => x != sender))
+                {
+                    iface.GetMachine().HandleTimeDomainEvent(iface.OnFrameReceived, id, data, TimeDomainsManager.Instance.VirtualTimeStamp);
+                }
+            }
         }
 
         private readonly List<ICAN> attached;

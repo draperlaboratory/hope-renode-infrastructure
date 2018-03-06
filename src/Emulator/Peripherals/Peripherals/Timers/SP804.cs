@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 // Copyright (c) 2011-2015 Realtime Embedded
 //
 // This file is licensed under the MIT License.
@@ -78,7 +78,7 @@ namespace Antmicro.Renode.Peripherals.Timers
             for(var i = 0; i < timers.Length; i++)
             {
                 var j = i;
-                timers[i].CoreTimer = new LimitTimer(machine, TimerFrequency);
+                timers[i].CoreTimer = new LimitTimer(machine.ClockSource, TimerFrequency);
                 timers[i].CoreTimer.AutoUpdate = true;
                 timers[i].CoreTimer.LimitReached += () => UpdateInterrupt(j, true);
                 timers[i].Control = InnerTimer.ControlRegister.InterruptEnable;

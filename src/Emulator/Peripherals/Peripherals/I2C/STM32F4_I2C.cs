@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 // Copyright (c) 2011-2015 Realtime Embedded
 //
 // This file is licensed under the MIT License.
@@ -148,7 +148,7 @@ namespace Antmicro.Renode.Peripherals.I2C
 
         private void InterruptEnableChange(bool oldValue, bool newValue)
         {
-            machine.ExecuteIn(Update);
+            machine.LocalTimeSource.ExecuteInNearestSyncedState(_ => Update());
         }
 
         private void Update()
@@ -220,11 +220,11 @@ namespace Antmicro.Renode.Peripherals.I2C
                     state = State.Idle;
                     acknowledgeFailed.Value = true;
                 }
-                machine.ExecuteIn(Update);
+                machine.LocalTimeSource.ExecuteInNearestSyncedState(_ => Update());
                 break;
             case State.AwaitingData:
                 dataToTransfer.Add((byte)newValue);
-                machine.ExecuteIn(() =>
+                machine.LocalTimeSource.ExecuteInNearestSyncedState(_ =>
                 {
                     startBit.Value = false;
                     Update();

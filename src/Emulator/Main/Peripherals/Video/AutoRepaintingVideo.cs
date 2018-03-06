@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 // Copyright (c) 2011-2015 Realtime Embedded
 //
 // This file is licensed under the MIT License.
@@ -14,14 +14,19 @@ using Antmicro.Renode.UserInterface;
 namespace Antmicro.Renode.Peripherals.Video
 {
     [Icon("lcd")]
-    public abstract class AutoRepaintingVideo : IVideo
+    public abstract class AutoRepaintingVideo : IVideo, IDisposable
     {
         protected AutoRepaintingVideo(Machine machine)
         {
             innerLock = new object();
             // we use synchronized thread since some deriving classes can generate interrupt on repainting
-            repainter = machine.ObtainManagedThread(DoRepaint, this, FramesPerSecond, string.Format("Repainting thread of {0}", this.GetType()));
+            repainter = machine.ObtainManagedThread(DoRepaint, FramesPerSecond);
             Endianess = ELFSharp.ELF.Endianess.LittleEndian;
+        }
+
+        public void Dispose()
+        {
+            repainter.Dispose();
         }
 
         public event Action<byte[]> FrameRendered;

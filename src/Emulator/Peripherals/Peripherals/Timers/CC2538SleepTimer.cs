@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 // Copyright (c) 2011-2015 Realtime Embedded
 //
 // This file is licensed under the MIT License.
@@ -13,7 +13,7 @@ namespace Antmicro.Renode.Peripherals.Timers
 {
     public sealed class CC2538SleepTimer : ComparingTimer, IDoubleWordPeripheral, IKnownSize
     {
-        public CC2538SleepTimer(Machine machine) : base(machine, 32768, compare: uint.MaxValue, limit: uint.MaxValue, enabled: true)
+        public CC2538SleepTimer(Machine machine) : base(machine.ClockSource, 32768, compare: uint.MaxValue, limit: uint.MaxValue, enabled: true)
         {
             IRQ = new GPIO();
         }

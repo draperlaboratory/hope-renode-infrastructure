@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 // Copyright (c) 2011-2015 Realtime Embedded
 //
 // This file is licensed under the MIT License.
@@ -59,7 +59,7 @@ namespace Antmicro.Renode.UserInterface.Commands
             var mach = new Machine() { Platform = platform };
             EmulationManager.Instance.CurrentEmulation.AddMachine(mach, name);
             changeCurrentMachine(mach);
-            monitor.TryExecuteScript(platform.ScriptPath);
+            monitor.TryExecuteScript(platform.ScriptPath, writer);
         }
 
         public CreatePlatformCommand(Monitor monitor, Action<Machine> changeCurrentMachine) : base(monitor, "createPlatform", "creates a platform.", "c")

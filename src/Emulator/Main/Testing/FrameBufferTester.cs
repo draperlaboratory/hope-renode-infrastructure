@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 //
 // This file is licensed under the MIT License.
 // Full license text is available in 'licenses/MIT.txt'.
@@ -12,6 +12,7 @@ using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using Antmicro.Renode.Backends.Display;
 using Antmicro.Renode.Core;
+using Antmicro.Renode.Exceptions;
 using Antmicro.Renode.Peripherals.Video;
 
 namespace Antmicro.Renode.Testing
@@ -35,6 +36,10 @@ namespace Antmicro.Renode.Testing
 
         public void AttachTo(IVideo obj)
         {
+            if(video != null)
+            {
+                throw new RecoverableException("Cannot attach to the provided video device as it would overwrite the existing configuration.");
+            }
             video = obj;
             video.ConfigurationChanged += HandleConfigurationChange;
             video.FrameRendered += HandleNewFrame;

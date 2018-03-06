@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 // Copyright (c) 2011-2015 Realtime Embedded
 //
 // This file is licensed under the MIT License.
@@ -266,7 +266,7 @@ namespace Antmicro.Renode.Peripherals.Timers
             
             public InnerTimer(Machine machine, int frequency)
             {
-                CoreTimer = new LimitTimer(machine, frequency, limit: InitialLimit, direction : Direction.Descending, eventEnabled: true);
+                CoreTimer = new LimitTimer(machine.ClockSource, frequency, limit: InitialLimit, direction : Direction.Descending, eventEnabled: true);
             }
 
             public LimitTimer CoreTimer;

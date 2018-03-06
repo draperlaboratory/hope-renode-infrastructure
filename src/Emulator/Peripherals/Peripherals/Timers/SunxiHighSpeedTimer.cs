@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 // Copyright (c) 2011-2015 Realtime Embedded
 //
 // This file is licensed under the MIT License.
@@ -181,7 +181,7 @@ namespace Antmicro.Renode.Peripherals.Timers
 
         private sealed class SunxiHighSpeedTimerUnit : LimitTimer
         {
-            public SunxiHighSpeedTimerUnit(Machine machine, long frequency) : base(machine, frequency, direction: Direction.Descending, enabled: false)
+            public SunxiHighSpeedTimerUnit(Machine machine, long frequency) : base(machine.ClockSource, frequency, direction: Direction.Descending, enabled: false)
             {
                 controlRegister = new DoubleWordRegister(this);
                 controlRegister.DefineFlagField(7, changeCallback: OnModeChange, name: "MODE");

@@ -1,5 +1,5 @@
 ﻿//
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 //
 // This file is licensed under the MIT License.
 // Full license text is available in 'licenses/MIT.txt'.
@@ -15,7 +15,7 @@ namespace Antmicro.Renode.Peripherals.Timers
 {
     public class MiV_CoreTimer : LimitTimer, IDoubleWordPeripheral, IKnownSize
     {
-        public MiV_CoreTimer(Machine machine, long clockFrequency) : base(machine, clockFrequency, autoUpdate: true, eventEnabled: true)
+        public MiV_CoreTimer(Machine machine, long clockFrequency) : base(machine.ClockSource, clockFrequency, autoUpdate: true, eventEnabled: true)
         {
             IRQ = new GPIO();
             LimitReached += delegate

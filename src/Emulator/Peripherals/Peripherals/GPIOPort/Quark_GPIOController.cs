@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010-2017 Antmicro
+// Copyright (c) 2010-2018 Antmicro
 //
 // This file is licensed under the MIT License.
 // Full license text is available in 'licenses/MIT.txt'.
@@ -129,17 +129,17 @@ namespace Antmicro.Renode.Peripherals.X86
         public bool[] InterruptMask { get; private set; }
         // setting state using this array directly will not raise any interrupts!
         public new bool[] State { get { return base.State; } }
-        public long Size { get { return 0x78; } } 
+        public long Size { get { return 0x78; } }
 
         private void PrepareRegisters()
         {
             registers = new DoubleWordRegisterCollection(this, new Dictionary<long, DoubleWordRegister>
             {
-                {(long)Registers.PortData, new DoubleWordRegister(this)
-                                .WithValueField(0, 32, writeCallback: (_, val) => 
+                {(long)Registers.PortAData, new DoubleWordRegister(this)
+                                .WithValueField(0, 32, writeCallback: (_, val) =>
                                 {
                                     var bits = BitHelper.GetBits(val);
-                                    for(int i = 0; i < bits.Length; i++) 
+                                    for(int i = 0; i < bits.Length; i++)
                                     {
                                         if(PortDataDirection[i] == PinDirection.Output)
                                         {
@@ -147,7 +147,7 @@ namespace Antmicro.Renode.Peripherals.X86
                                             State[i] = bits[i];
                                         }
                                     }
-                                })
+                    }, valueProviderCallback: _ => { return BitHelper.GetValueFromBitsArray(State); })
                 },
                 {(long)Registers.PortADataDirection, new DoubleWordRegister(this)
                                 .WithValueField(0, 32, writeCallback: (_, val) => Array.Copy(BitHelper.GetBits(val).Select(x => x ? PinDirection.Output : PinDirection.Input).ToArray() , PortDataDirection, 32),
@@ -155,7 +155,7 @@ namespace Antmicro.Renode.Peripherals.X86
                 },
                 {(long)Registers.InterruptEnable, new DoubleWordRegister(this)
                                 .WithValueField(0, 32, writeCallback: (_, val) => {
-                                            Array.Copy(BitHelper.GetBits(val), InterruptEnable, 32); 
+                                            Array.Copy(BitHelper.GetBits(val), InterruptEnable, 32);
                                             RefreshInterrupts();
                                         },
                                     valueProviderCallback: _ => BitHelper.GetValueFromBitsArray(InterruptEnable))
@@ -173,16 +173,16 @@ namespace Antmicro.Renode.Peripherals.X86
                 },
                 {(long)Registers.InterruptMask, new DoubleWordRegister(this)
                                 .WithValueField(0, 32, writeCallback: (_, val) => {
-                                        Array.Copy(BitHelper.GetBits(val), InterruptMask, 32); 
-                                        RefreshInterrupts(); 
+                                        Array.Copy(BitHelper.GetBits(val), InterruptMask, 32);
+                                        RefreshInterrupts();
                                     },
                                     valueProviderCallback: _ => BitHelper.GetValueFromBitsArray(InterruptMask))
                 },
-                {(long)Registers.ExternalPort, new DoubleWordRegister(this)
+                {(long)Registers.PortAExternalPort, new DoubleWordRegister(this)
                                 .WithValueField(0, 32, FieldMode.Read, valueProviderCallback: _ => BitHelper.GetValueFromBitsArray(State))
                 },
                 {(long)Registers.ClearInterrupt, new DoubleWordRegister(this)
-                                .WithValueField(0, 32, FieldMode.Write, writeCallback: (_, val) => 
+                                .WithValueField(0, 32, FieldMode.Write, writeCallback: (_, val) =>
                                 {
                                     foreach(var bit in BitHelper.GetSetBits(val))
                                     {
@@ -312,18 +312,21 @@ namespace Antmicro.Renode.Peripherals.X86
             BothEdges
         }
 
-        private enum Registers : long
+        internal enum Registers : long
         {
-            PortData = 0x0,
+            PortAData = 0x0,
             PortADataDirection = 0x4,
+            PortADataSource = 0x8,
             InterruptEnable = 0x30,
             InterruptMask = 0x34,
             InterruptType = 0x38,
             InterruptPolarity = 0x3C,
             InterruptStatus = 0x40,
             RawInterruptStatus = 0x44,
+            DebounceEnable = 0x48,
             ClearInterrupt = 0x4C,
-            ExternalPort = 0x50,
+            PortAExternalPort = 0x50,
+            SynchronizationLevel = 0x60,
             InterruptBothEdgeType = 0x68
         }
     }
