@@ -26,9 +26,9 @@ namespace Antmicro.Renode.Peripherals.CPU
 	    return EVValidate(PC, InstructionBits) != 0;
 	}
 
-	public void Commit()
+	public bool Commit()
 	{
-	    EVCommit();
+	    return EVCommit() != 0;
 	}
 
 	private NativeBinder binder;
@@ -43,6 +43,6 @@ namespace Antmicro.Renode.Peripherals.CPU
 	[Import]
 	private FuncUInt32UInt32UInt32 EVValidate;
 	[Import]
-	private Action EVCommit;
+	private FuncUInt32 EVCommit;
     }
 }

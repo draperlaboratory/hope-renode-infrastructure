@@ -15,6 +15,6 @@ namespace Antmicro.Renode.Peripherals.CPU
 //	    this.Log(LogLevel.Info, "Validating 0x{0:x}:  0x{1:x}", PC, InstructionBits);
 	    return true;
 	}
-	public void Commit() { }
+	public bool Commit() { return true; }
     }
 }

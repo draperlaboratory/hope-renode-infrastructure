@@ -11,6 +11,6 @@ namespace Antmicro.Renode.Peripherals.CPU
     {
 	void SetCallbacks(RegisterReader RegReader, MemoryReader MemReader);
 	bool Validate(uint PC, uint InstructionBits);
-	void Commit();
+	bool Commit();
     }
 }

@@ -749,7 +749,10 @@ namespace Antmicro.Renode.Peripherals.CPU
 	    {
 		if (commitPending)
 		{
-		    Validator.Commit();
+		    if (!Validator.Commit())
+		    {
+			ReportAbort("Validator requested pause");
+		    }
 		}
 
 		if (!Validator.Validate(address, machine.SystemBus.ReadDoubleWord(address)))
